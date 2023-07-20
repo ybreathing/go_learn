@@ -9,14 +9,14 @@ import (
 var jwtKey = []byte("zzy_secret_key")
 
 type Claims struct {
-	userId uint
+	UserId uint
 	jwt.StandardClaims
 }
 
 func ReleaseToken(user module.User) (string, error) {
 	expiresAt := time.Now().Add(7 * 24 * time.Hour)
 	claims := &Claims{
-		userId: user.ID,
+		UserId: user.ID,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: expiresAt.Unix(),
 			Issuer:    "zzy",
@@ -31,4 +31,15 @@ func ReleaseToken(user module.User) (string, error) {
 	}
 
 	return tokenString, nil
+}
+
+func ParesToken(tokenString string) (*jwt.Token, *Claims, error) {
+
+	claims := &Claims{}
+
+	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
+		return jwtKey, nil
+	})
+
+	return token, claims, err
 }
