@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"golang.org/x/crypto/bcrypt"
 	"net/http"
 	"zzy/go-learn/common"
 	"zzy/go-learn/module"
@@ -32,7 +33,6 @@ func Register(cxt *gin.Context) {
 
 	if len(name) == 0 {
 		name = util.RandomString(10)
-		return
 	}
 
 	if isPhoneExist(DB, phone) {
@@ -40,13 +40,18 @@ func Register(cxt *gin.Context) {
 		return
 	}
 
+	// 对密码进行加密存储
+	fromPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		cxt.JSON(http.StatusInternalServerError, gin.H{"code": 500, "msg": "密码加密失败"})
+		return
+	}
 	newUser := module.User{
 		Name:     name,
 		Phone:    phone,
-		Password: password,
+		Password: string(fromPassword),
 	}
 	DB.Create(&newUser)
-
 	cxt.JSON(200, gin.H{
 		"msg": "注册成功",
 	})
@@ -80,17 +85,20 @@ func Login(cxt *gin.Context) {
 	if user.ID == 0 {
 		cxt.JSON(http.StatusUnprocessableEntity, gin.H{"code": 422, "msg": "用户不存在"})
 	}
-
 	// 校验密码
-
+	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
+		cxt.JSON(http.StatusBadRequest, gin.H{"code": 400, "msg": "密码错误"})
+		return
+	}
 	// 返回token
+	token := "111"
 
 	// 返回结果
-
-	//
-
 	cxt.JSON(200, gin.H{
-		"message": "pong",
+		"code":  200,
+		"msg":   "登录成功",
+		"token": token,
 	})
 
 }
