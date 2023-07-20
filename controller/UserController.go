@@ -2,6 +2,7 @@ package controller
 
 import (
 	"golang.org/x/crypto/bcrypt"
+	"log"
 	"net/http"
 	"zzy/go-learn/common"
 	"zzy/go-learn/module"
@@ -92,7 +93,12 @@ func Login(cxt *gin.Context) {
 		return
 	}
 	// 返回token
-	token := "111"
+	token, err := common.ReleaseToken(user)
+	if err != nil {
+		cxt.JSON(http.StatusInternalServerError, gin.H{"code": 400, "msg": "生成token失败"})
+		log.Printf("token generate error : %v", err)
+		return
+	}
 
 	// 返回结果
 	cxt.JSON(200, gin.H{
