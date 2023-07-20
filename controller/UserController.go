@@ -110,7 +110,7 @@ func Login(cxt *gin.Context) {
 	}
 
 	// 返回结果
-	response.Success(cxt, gin.H{"code": 200, "msg": "登录成功", "token": token}, "")
+	response.Success(cxt, gin.H{"token": token}, "登录成功")
 
 }
 
@@ -125,7 +125,7 @@ func UserInfo(cxt *gin.Context) {
 	//	//user.(module.User)
 	//	"user": dto.ToUserDto(user.(module.User)),
 	//})
-	response.Success(cxt, gin.H{"code": 200, "user": dto.ToUserDto(user.(module.User))}, "")
+	response.Success(cxt, gin.H{"user": dto.ToUserDto(user.(module.User))}, "")
 
 }
 
